@@ -197,7 +197,10 @@ export function transition(flags, element, get_fn, get_params) {
 		var options = get_options();
 		if (options.css) {
 			var starting_styles = css_to_keyframe(options.css(0, 1));
+			console.log('Attempting to apply starting styles:', starting_styles);
 			Object.assign(element.style, starting_styles);
+			console.log('Element style after assign:', element.style.opacity);
+			console.log('Computed style after assign:', getComputedStyle(element).opacity);
 		}
 	}
 
