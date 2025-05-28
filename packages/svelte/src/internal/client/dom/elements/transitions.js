@@ -382,6 +382,7 @@ function animate(element, options, counterpart, t2, on_finish) {
 	// multiplier is in effect). in the common case that it is `0`, we keep it anyway so that
 	// the CSS keyframes aren't created until the DOM is updated
 	console.log('Delay keyframes:', JSON.stringify(keyframes, null, 2));
+	console.log('Delay options:', JSON.stringify(options, null, 2));
 	var animation = element.animate(keyframes, { duration: delay });
 
 	animation.onfinish = () => {
