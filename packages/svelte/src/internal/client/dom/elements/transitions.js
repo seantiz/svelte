@@ -379,6 +379,11 @@ function animate(element, options, counterpart, t2, on_finish) {
 			keyframes.push(styles, styles);
 		}
 	}
+
+	if (keyframes.length === 0 && css) {
+		var current_styles = css_to_keyframe(css(1 - t2, t2));
+		keyframes.push(current_styles, current_styles);
+	}
 	console.log('Final delay keyframes:', JSON.stringify(keyframes));
 
 	var get_t = () => 1 - t2;
