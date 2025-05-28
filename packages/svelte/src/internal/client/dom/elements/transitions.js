@@ -381,6 +381,7 @@ function animate(element, options, counterpart, t2, on_finish) {
 	// create a dummy animation that lasts as long as the delay (but with whatever devtools
 	// multiplier is in effect). in the common case that it is `0`, we keep it anyway so that
 	// the CSS keyframes aren't created until the DOM is updated
+	console.log('Delay keyframes:', keyframes);
 	var animation = element.animate(keyframes, { duration: delay });
 
 	animation.onfinish = () => {
