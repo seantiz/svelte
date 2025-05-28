@@ -476,6 +476,8 @@ function animate(element, options, counterpart, t2, on_finish) {
 		}
 
 		animation = element.animate(keyframes, { duration, fill: 'forwards' });
+		console.log('Real animation keyframes:', keyframes);
+		console.log('Real animation duration:', duration);
 
 		animation.onfinish = () => {
 			get_t = () => t2;
