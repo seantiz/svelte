@@ -388,8 +388,11 @@ function animate(element, options, counterpart, t2, on_finish) {
 	animation.onfinish = () => {
 		// for bidirectional transitions, we start from the current position,
 		// rather than doing a full intro/outro
+		console.log('1. Start of onfinish - opacity:', getComputedStyle(element).opacity);
+
 		var t1 = counterpart?.t() ?? 1 - t2;
 		counterpart?.abort();
+		console.log('2. After t1 calculation - opacity:', getComputedStyle(element).opacity);
 
 		var delta = t2 - t1;
 		var duration = /** @type {number} */ (options.duration) * Math.abs(delta);
