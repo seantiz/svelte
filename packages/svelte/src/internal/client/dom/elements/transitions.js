@@ -182,7 +182,12 @@ export function animation(element, get_fn, get_params) {
  * @returns {void}
  */
 export function transition(flags, element, get_fn, get_params) {
-	console.log('TRANSITION CALLED for:', element.id, 'opacity:', getComputedStyle(element).opacity);
+	console.log(
+		'TRANSITION CALLED for:',
+		element.id,
+		'opacity:',
+		getComputedStyle(element).opacity || 'none'
+	);
 	var is_intro = (flags & TRANSITION_IN) !== 0;
 	var is_outro = (flags & TRANSITION_OUT) !== 0;
 	var is_both = is_intro && is_outro;
@@ -231,6 +236,12 @@ export function transition(flags, element, get_fn, get_params) {
 	var transition = {
 		is_global,
 		in() {
+			console.log(
+				'TRANSITION.IN() START - element in DOM:',
+				document.contains(element),
+				'opacity:',
+				getComputedStyle(element).opacity
+			);
 			element.inert = inert;
 
 			if (!is_intro) {
