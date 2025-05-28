@@ -238,6 +238,12 @@ export function transition(flags, element, get_fn, get_params) {
 				return;
 			}
 
+			var options = get_options();
+			if (options.css) {
+				var starting_styles = css_to_keyframe(options.css(0, 1));
+				Object.assign(element.style, starting_styles);
+			}
+
 			if (!is_outro) {
 				// if we intro then outro then intro again, we want to abort the first intro,
 				// if it's not a bidirectional transition
@@ -369,7 +375,7 @@ function animate(element, options, counterpart, t2, on_finish) {
 	console.log('counterpart:', counterpart);
 	console.log('css function exists:', !!css);
 
-	if (is_intro) {
+	if (is_intro && counterpart === undefined) {
 		if (tick) {
 			tick(0, 1); // TODO put in nested effect, to avoid interleaved reads/writes?
 		}
