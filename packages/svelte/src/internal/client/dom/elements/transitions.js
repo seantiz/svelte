@@ -369,7 +369,7 @@ function animate(element, options, counterpart, t2, on_finish) {
 	console.log('counterpart:', counterpart);
 	console.log('css function exists:', !!css);
 
-	if (is_intro && counterpart === undefined) {
+	if (is_intro) {
 		if (tick) {
 			tick(0, 1); // TODO put in nested effect, to avoid interleaved reads/writes?
 		}
