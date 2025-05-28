@@ -189,8 +189,8 @@ export function transition(flags, element, get_fn, get_params) {
 		getComputedStyle(element).opacity || 'none'
 	);
 
-	console.log('get_fn:', typeof get_fn);
-	console.log('get_params:', typeof get_params);
+	var test_options = get_fn()(element, get_params?.() ?? {}, { direction: 'in' });
+	console.log('test_options:', test_options);
 
 	var is_intro = (flags & TRANSITION_IN) !== 0;
 	var is_outro = (flags & TRANSITION_OUT) !== 0;
