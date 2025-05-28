@@ -365,6 +365,10 @@ function animate(element, options, counterpart, t2, on_finish) {
 
 	var keyframes = [];
 
+	console.log('is_intro:', is_intro);
+	console.log('counterpart:', counterpart);
+	console.log('css function exists:', !!css);
+
 	if (is_intro && counterpart === undefined) {
 		if (tick) {
 			tick(0, 1); // TODO put in nested effect, to avoid interleaved reads/writes?
@@ -375,6 +379,7 @@ function animate(element, options, counterpart, t2, on_finish) {
 			keyframes.push(styles, styles);
 		}
 	}
+	console.log('Final delay keyframes:', keyframes);
 
 	var get_t = () => 1 - t2;
 
