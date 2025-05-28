@@ -198,14 +198,9 @@ export function transition(flags, element, get_fn, get_params) {
 	var is_global = (flags & TRANSITION_GLOBAL) !== 0;
 
 	if (is_intro) {
-		var options = get_options();
-		if (options.css) {
-			var starting_styles = css_to_keyframe(options.css(0, 1));
-			console.log('Attempting to apply starting styles:', starting_styles);
-			Object.assign(element.style, starting_styles);
-			console.log('Element style after assign:', element.style.opacity);
-			console.log('Computed style after assign:', getComputedStyle(element).opacity);
-		}
+		element.style.opacity = '0';
+		console.log('Element style at start of transition call', element.style.opacity);
+		console.log('Computed style after assign:', getComputedStyle(element).opacity);
 	}
 
 	/** @type {'in' | 'out' | 'both'} */
