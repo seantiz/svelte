@@ -379,7 +379,7 @@ function animate(element, options, counterpart, t2, on_finish) {
 			keyframes.push(styles, styles);
 		}
 	}
-	console.log('Final delay keyframes:', keyframes);
+	console.log('Final delay keyframes:', JSON.stringify(keyframes));
 
 	var get_t = () => 1 - t2;
 
