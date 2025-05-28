@@ -381,9 +381,11 @@ function animate(element, options, counterpart, t2, on_finish) {
 	// create a dummy animation that lasts as long as the delay (but with whatever devtools
 	// multiplier is in effect). in the common case that it is `0`, we keep it anyway so that
 	// the CSS keyframes aren't created until the DOM is updated
-	console.log('Delay keyframes:', JSON.stringify(keyframes, null, 2));
-	console.log('Delay options:', JSON.stringify(options, null, 2));
 	var animation = element.animate(keyframes, { duration: delay });
+
+	animation.addEventListener('finish', () => {
+		console.log('DELAY ANIMATION FINISHED - opacity:', getComputedStyle(element).opacity);
+	});
 
 	animation.onfinish = () => {
 		// for bidirectional transitions, we start from the current position,
@@ -392,7 +394,6 @@ function animate(element, options, counterpart, t2, on_finish) {
 
 		var t1 = counterpart?.t() ?? 1 - t2;
 		counterpart?.abort();
-		console.log('2. After t1 calculation - opacity:', getComputedStyle(element).opacity);
 
 		var delta = t2 - t1;
 		var duration = /** @type {number} */ (options.duration) * Math.abs(delta);
