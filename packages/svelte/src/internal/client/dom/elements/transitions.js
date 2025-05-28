@@ -182,6 +182,7 @@ export function animation(element, get_fn, get_params) {
  * @returns {void}
  */
 export function transition(flags, element, get_fn, get_params) {
+	console.log('TRANSITION CALLED for:', element.id, 'opacity:', getComputedStyle(element).opacity);
 	var is_intro = (flags & TRANSITION_IN) !== 0;
 	var is_outro = (flags & TRANSITION_OUT) !== 0;
 	var is_both = is_intro && is_outro;
@@ -236,12 +237,6 @@ export function transition(flags, element, get_fn, get_params) {
 				outro?.abort();
 				outro?.reset?.();
 				return;
-			}
-
-			var options = get_options();
-			if (options.css) {
-				var starting_styles = css_to_keyframe(options.css(0, 1));
-				Object.assign(element.style, starting_styles);
 			}
 
 			if (!is_outro) {
