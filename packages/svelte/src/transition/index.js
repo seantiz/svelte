@@ -184,6 +184,10 @@ export function scale(
  * @returns {TransitionConfig}
  */
 export function draw(node, { delay = 0, speed, duration, easing = cubic_in_out } = {}) {
+
+	node.style.strokeDasharray = "1";
+  node.style.strokeDashoffset = "1";
+  
 	let len = node.getTotalLength();
 	const style = getComputedStyle(node);
 	if (style.strokeLinecap !== 'butt') {
