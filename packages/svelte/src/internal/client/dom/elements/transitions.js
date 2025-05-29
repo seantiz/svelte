@@ -189,6 +189,7 @@ export function transition(flags, element, get_fn, get_params) {
 		getComputedStyle(element).opacity || 'none'
 	);
 
+	// Exploring transition() space
 	var test_options = get_fn()(element, get_params?.() ?? {}, { direction: 'in' });
 	console.log('test_options:', test_options);
 
@@ -198,6 +199,7 @@ export function transition(flags, element, get_fn, get_params) {
 	var is_global = (flags & TRANSITION_GLOBAL) !== 0;
 
 	if (is_intro) {
+		// Hard override
 		element.style.opacity = '0';
 		console.log('Element style at start of transition call', element.style.opacity);
 		console.log('Computed style after assign:', getComputedStyle(element).opacity);
@@ -383,13 +385,10 @@ function animate(element, options, counterpart, t2, on_finish) {
 		};
 	}
 
+	// Delay animation object
 	const { delay = 0, css, tick, easing = linear } = options;
 
 	var keyframes = [];
-
-	console.log('is_intro:', is_intro);
-	console.log('counterpart:', counterpart);
-	console.log('css function exists:', !!css);
 
 	if (is_intro && counterpart === undefined) {
 		if (tick) {
@@ -397,8 +396,9 @@ function animate(element, options, counterpart, t2, on_finish) {
 		}
 
 		if (css) {
-			var styles = css_to_keyframe(css(0, 1));
-			keyframes.push(styles, styles);
+			 var start_styles = css_to_keyframe(css(t2, 1 - t2)); // Inverted
+    var end_styles = css_to_keyframe(css(1 - t2, t2));   // Final state
+			keyframes.push(start_styles, end_styles);
 		}
 	}
 
@@ -416,7 +416,7 @@ function animate(element, options, counterpart, t2, on_finish) {
 	var animation = element.animate(keyframes, { duration: delay });
 
 	animation.addEventListener('finish', () => {
-		console.log('DELAY ANIMATION FINISHED - opacity:', getComputedStyle(element).opacity);
+		console.log('End of delay animation - opacity:', getComputedStyle(element).opacity);
 	});
 
 	animation.onfinish = () => {
@@ -475,9 +475,8 @@ function animate(element, options, counterpart, t2, on_finish) {
 			}
 		}
 
+		// real animation frames
 		animation = element.animate(keyframes, { duration, fill: 'forwards' });
-		console.log('Real animation keyframes:', JSON.stringify(keyframes));
-		console.log('Real animation duration:', duration);
 
 		animation.onfinish = () => {
 			get_t = () => t2;
