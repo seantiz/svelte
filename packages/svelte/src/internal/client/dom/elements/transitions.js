@@ -198,13 +198,6 @@ export function transition(flags, element, get_fn, get_params) {
 	var is_both = is_intro && is_outro;
 	var is_global = (flags & TRANSITION_GLOBAL) !== 0;
 
-	if (is_intro) {
-		// Hard override
-		element.style.opacity = '0';
-		console.log('Element style at start of transition call', element.style.opacity);
-		console.log('Computed style after assign:', getComputedStyle(element).opacity);
-	}
-
 	/** @type {'in' | 'out' | 'both'} */
 	var direction = is_both ? 'both' : is_intro ? 'in' : 'out';
 
