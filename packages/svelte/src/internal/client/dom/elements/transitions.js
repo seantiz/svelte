@@ -376,41 +376,40 @@ function animate(element, options, counterpart, t2, on_finish) {
 		}
 	}
 
+	var t1 = counterpart?.t() ?? 1 - t2;
+	counterpart?.abort();
+
+	var delta = t2 - t1;
+	var animation_duration = /** @type {number} */ (options.duration) * Math.abs(delta);
+	var total_duration = delay + animation_duration;
+
+	var combined_keyframes = [];
 	var get_t = () => 1 - t2;
 
-	// create a dummy animation that lasts as long as the delay (but with whatever devtools
-	// multiplier is in effect). in the common case that it is `0`, we keep it anyway so that
-	// the CSS keyframes aren't created until the DOM is updated
-	var animation = element.animate(keyframes, { duration: delay });
+	if (total_duration > 0) {
+		if (delay > 0) {
+			// Add delay keyframes (static state)
+			var delay_styles = initial_keyframes.length > 0 ? initial_keyframes[0] : {};
+			if (css && initial_keyframes.length === 0) {
+				delay_styles = css_to_keyframe(css(t1, 1 - t1));
+			}
+			combined_keyframes.push(delay_styles);
 
-	animation.onfinish = () => {
-		// for bidirectional transitions, we start from the current position,
-		// rather than doing a full intro/outro
-		var t1 = counterpart?.t() ?? 1 - t2;
-		counterpart?.abort();
+			// If there's more than just delay, add another keyframe at the end of delay period
+			if (animation_duration > 0) {
+				combined_keyframes.push(delay_styles);
+			}
+		}
 
-		var delta = t2 - t1;
-		var duration = /** @type {number} */ (options.duration) * Math.abs(delta);
-		var keyframes = [];
+		if (animation_duration > 0 && css) {
+			var n = Math.ceil(animation_duration / (1000 / 60));
+			var keyframe_start_index = delay > 0 ? combined_keyframes.length : 0;
 
-		if (duration > 0) {
-			/**
-			 * Whether or not the CSS includes `overflow: hidden`, in which case we need to
-			 * add it as an inline style to work around a Safari <18 bug
-			 * TODO 6.0 remove this, if possible
-			 */
-			var needs_overflow_hidden = false;
-
-			if (css) {
-				var n = Math.ceil(duration / (1000 / 60)); // `n` must be an integer, or we risk missing the `t2` value
-
-				for (var i = 0; i <= n; i += 1) {
-					var t = t1 + delta * easing(i / n);
-					var styles = css_to_keyframe(css(t, 1 - t));
-					keyframes.push(styles);
-
-					needs_overflow_hidden ||= styles.overflow === 'hidden';
-				}
+			for (var i = 0; i <= n; i += 1) {
+				var t = t1 + delta * easing(i / n);
+				var styles = css_to_keyframe(css(t, 1 - t));
+				combined_keyframes.push(styles);
+				needs_overflow_hidden ||= styles.overflow === 'hidden';
 			}
 
 			if (needs_overflow_hidden) {
@@ -422,28 +421,39 @@ function animate(element, options, counterpart, t2, on_finish) {
 					/** @type {globalThis.Animation} */ (animation).currentTime
 				);
 
-				return t1 + delta * easing(time / duration);
+				// Adjust for delay offset
+				var adjusted_time = Math.max(0, time - delay);
+				return t1 + delta * easing(adjusted_time / animation_duration);
 			};
 
 			if (tick) {
 				loop(() => {
 					if (animation.playState !== 'running') return false;
 
-					var t = get_t();
-					tick(t, 1 - t);
+					var current_time = /** @type {number} */ (animation.currentTime);
+
+					// Only tick during the actual animation phase
+					if (current_time >= delay) {
+						var t = get_t();
+						tick(t, 1 - t);
+					}
 
 					return true;
 				});
 			}
 		}
+	}
 
-		animation = element.animate(keyframes, { duration, fill: 'forwards' });
+	// Batched animation object
+	var animation = element.animate(combined_keyframes, {
+		duration: total_duration,
+		fill: 'forwards'
+	});
 
-		animation.onfinish = () => {
-			get_t = () => t2;
-			tick?.(t2, 1 - t2);
-			on_finish();
-		};
+	animation.onfinish = () => {
+		get_t = () => t2;
+		tick?.(t2, 1 - t2);
+		on_finish();
 	};
 
 	return {
