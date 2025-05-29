@@ -199,9 +199,6 @@ export function draw(node, { delay = 0, speed, duration, easing = cubic_in_out }
 	} else if (typeof duration === 'function') {
 		duration = duration(len);
 	}
-
-	 node.style.strokeDasharray = String(len);
-  node.style.strokeDashoffset = String(len);
   
 	return {
 		delay,
