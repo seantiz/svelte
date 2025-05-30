@@ -374,7 +374,6 @@ function animate(element, options, counterpart, t2, on_finish) {
 		on_finish();
 
 		return {
-			performance.mark('sent to noop')
 			abort: noop,
 			deactivate: noop,
 			reset: noop,
@@ -455,9 +454,9 @@ function animate(element, options, counterpart, t2, on_finish) {
 			get_t = () => {
 				var time = /** @type {number} */ (
 					/** @type {globalThis.Animation} */ (animation).currentTime
-						performance.mark('Getting total time from WAAPI')
 				);
 
+				performance.mark('Getting total time from WAAPI')
 				return t1 + delta * easing(time / duration);
 			};
 
