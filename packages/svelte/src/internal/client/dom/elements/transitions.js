@@ -395,9 +395,8 @@ function animate(element, options, counterpart, t2, on_finish) {
 
 		if (css) {
 			performance.mark('Computing css styles to push them to JS keyframes');
-			var start_styles = css_to_keyframe(css(t2, 1 - t2)); // Inverted
-			var end_styles = css_to_keyframe(css(1 - t2, t2)); // Final state
-			keyframes.push(start_styles, end_styles);
+			var computedstyles = css_to_keyframe(css(0, 1));
+			keyframes.push(computedstyles, computedstyles);
 		}
 	}
 
