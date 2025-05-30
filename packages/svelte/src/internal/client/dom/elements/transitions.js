@@ -22,7 +22,7 @@ import { without_reactive_context } from './bindings/shared.js';
  * @returns {void}
  */
 function dispatch_event(element, type) {
-	performance.measure('transition library event dispatcher');
+	performance.mark('transition library event dispatcher');
 	without_reactive_context(() => {
 		element.dispatchEvent(new CustomEvent(type));
 	});
@@ -35,7 +35,7 @@ function dispatch_event(element, type) {
  */
 function css_property_to_camelcase(style) {
 	// in compliance with spec
-	performance.measure('css getting converted to camelcase');
+	performance.mark('css getting converted to camelcase');
 	if (style === 'float') return 'cssFloat';
 	if (style === 'offset') return 'cssOffset';
 
@@ -59,7 +59,7 @@ function css_property_to_camelcase(style) {
  */
 function css_to_keyframe(css) {
 	/** @type {Keyframe} */
-	performance.measure('Converting css to keyframes');
+	performance.mark('Converting css to keyframes');
 	const keyframe = {};
 	const parts = css.split(';');
 	for (const part of parts) {
@@ -86,7 +86,7 @@ const linear = (t) => t;
 export function animation(element, get_fn, get_params) {
 	var item = /** @type {EachItem} */ (current_each_item);
 
-	performance.measure('Building DOM rectangles by animation');
+	performance.mark('Building DOM rectangles by animation');
 	/** @type {DOMRect} */
 	var from;
 
@@ -193,7 +193,7 @@ export function transition(flags, element, get_fn, get_params) {
 		getComputedStyle(element).opacity || 'none'
 	);
 
-	performance.measure('transition is at work');
+	performance.mark('transition is at work');
 	var is_intro = (flags & TRANSITION_IN) !== 0;
 	var is_outro = (flags & TRANSITION_OUT) !== 0;
 	var is_both = is_intro && is_outro;
@@ -221,7 +221,7 @@ export function transition(flags, element, get_fn, get_params) {
 	var outro;
 
 	function get_options() {
-		performance.measure('get_options is finding reactive objects and effects');
+		performance.mark('get_options is finding reactive objects and effects');
 		var previous_reaction = active_reaction;
 		var previous_effect = active_effect;
 		set_active_reaction(null);
@@ -243,7 +243,7 @@ export function transition(flags, element, get_fn, get_params) {
 	var transition = {
 		is_global,
 		in() {
-			performance.measure('transition:in is running');
+			performance.mark('transition:in is running');
 			element.inert = inert;
 
 			if (!is_intro) {
@@ -271,7 +271,7 @@ export function transition(flags, element, get_fn, get_params) {
 			});
 		},
 		out(fn) {
-			performance.measure('transition:out is running');
+			performance.mark('transition:out is running');
 			if (!is_outro) {
 				fn?.();
 				current_options = undefined;
@@ -288,7 +288,7 @@ export function transition(flags, element, get_fn, get_params) {
 			});
 		},
 		stop: () => {
-			performance.measure('transition.stop aborted');
+			performance.mark('transition.stop aborted');
 			intro?.abort();
 			outro?.abort();
 		}
@@ -303,7 +303,7 @@ export function transition(flags, element, get_fn, get_params) {
 	// looking at whether the block effect is currently initializing
 	if (is_intro && should_intro) {
 		var run = is_global;
-		performance.measure('is_intro and should_intro are true');
+		performance.mark('is_intro and should_intro are true');
 
 		if (!run) {
 			var block = /** @type {Effect | null} */ (e.parent);
@@ -320,7 +320,7 @@ export function transition(flags, element, get_fn, get_params) {
 
 		if (run) {
 			effect(() => {
-				performance.measure('effect no longer tracking transition.in');
+				performance.mark('effect no longer tracking transition.in');
 				untrack(() => transition.in());
 			});
 		}
@@ -338,7 +338,7 @@ export function transition(flags, element, get_fn, get_params) {
  */
 function animate(element, options, counterpart, t2, on_finish) {
 	var is_intro = t2 === 1;
-	performance.measure('animate is running according to the received config');
+	performance.mark('animate is running according to the received config');
 
 	if (is_function(options)) {
 		// In the case of a deferred transition (such as `crossfade`), `option` will be
@@ -349,7 +349,7 @@ function animate(element, options, counterpart, t2, on_finish) {
 		var aborted = false;
 
 		queue_micro_task(() => {
-			performance.measure('microtask queued');
+			performance.mark('microtask queued');
 			if (aborted) return;
 			var o = options({ direction: is_intro ? 'in' : 'out' });
 			a = animate(element, o, counterpart, t2, on_finish);
@@ -386,15 +386,15 @@ function animate(element, options, counterpart, t2, on_finish) {
 
 	var keyframes = [];
 
-	performance.measure('delay object created and empty keyframes array prepared');
+	performance.mark('delay object created and empty keyframes array prepared');
 	if (is_intro && counterpart === undefined) {
 		if (tick) {
-			performance.measure('problem area entered. Tick is running with final target state.');
+			performance.mark('problem area entered. Tick is running with final target state.');
 			tick(0, 1); // TODO put in nested effect, to avoid interleaved reads/writes?
 		}
 
 		if (css) {
-			performance.measure('Computing css styles to push them to JS keyframes');
+			performance.mark('Computing css styles to push them to JS keyframes');
 			var start_styles = css_to_keyframe(css(t2, 1 - t2)); // Inverted
 			var end_styles = css_to_keyframe(css(1 - t2, t2)); // Final state
 			keyframes.push(start_styles, end_styles);
@@ -413,12 +413,12 @@ function animate(element, options, counterpart, t2, on_finish) {
 	// the CSS keyframes aren't created until the DOM is updated
 	var animation = element.animate(keyframes, { duration: delay });
 
-	performance.measure('Delay object sent to WAAPI');
+	performance.mark('Delay object sent to WAAPI');
 
 	animation.onfinish = () => {
 		// for bidirectional transitions, we start from the current position,
 		// rather than doing a full intro/outro
-		performance.measure('animation onfinish cleaning up');
+		performance.mark('animation onfinish cleaning up');
 
 		var t1 = counterpart?.t() ?? 1 - t2;
 		counterpart?.abort();
@@ -456,16 +456,17 @@ function animate(element, options, counterpart, t2, on_finish) {
 					/** @type {globalThis.Animation} */ (animation).currentTime
 				);
 
-				performance.measure('Getting total time from WAAPI');
+				performance.mark('Getting total time from WAAPI');
+
 				return t1 + delta * easing(time / duration);
 			};
 
 			if (tick) {
 				loop(() => {
-					performance.measure('Loop ran before reading playState');
+					performance.mark('Loop ran before reading playState');
 					if (animation.playState !== 'running') return false;
 
-					performance.measure('Loop found playState running');
+					performance.mark('Loop found playState running');
 					var t = get_t();
 					tick(t, 1 - t);
 
@@ -476,10 +477,10 @@ function animate(element, options, counterpart, t2, on_finish) {
 
 		// real animation frames
 		animation = element.animate(keyframes, { duration, fill: 'forwards' });
-		performance.measure('Sending real animation object to WAAPI');
+		performance.mark('Sending real animation object to WAAPI');
 
 		animation.onfinish = () => {
-			performance.measure('Real animation object cleanup begun');
+			performance.mark('Real animation object cleanup begun');
 			get_t = () => t2;
 			tick?.(t2, 1 - t2);
 			on_finish();
@@ -490,7 +491,7 @@ function animate(element, options, counterpart, t2, on_finish) {
 		abort: () => {
 			if (animation) {
 				animation.cancel();
-				performance.measure('animation cancelled (Chromium safeguard)');
+				performance.mark('animation cancelled (Chromium safeguard)');
 				// This prevents memory leaks in Chromium
 				animation.effect = null;
 				// This prevents onfinish to be launched after cancel(),
@@ -501,10 +502,10 @@ function animate(element, options, counterpart, t2, on_finish) {
 		},
 		deactivate: () => {
 			on_finish = noop;
-			performance.measure('Animation deactivated - sent down noop alley');
+			performance.mark('Animation deactivated - sent down noop alley');
 		},
 		reset: () => {
-			performance.measure('Animation reset');
+			performance.mark('reset');
 			if (t2 === 0) {
 				tick?.(1, 0);
 			}
@@ -512,7 +513,3 @@ function animate(element, options, counterpart, t2, on_finish) {
 		t: () => get_t()
 	};
 }
-
-performance.getEntriesByType('measure').forEach((measure) => {
-	console.log(`$measure`);
-});
